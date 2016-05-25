@@ -1,0 +1,8 @@
+---
+- name: Generate switch configuration files
+  hosts: all
+  connection: local
+  gather_facts: false
+
+  roles:
+    - switch

@@ -1,0 +1,6 @@
+---
+- name: Create build directory
+  file: path=build state=directory
+
+- name: Generate switch configuration files
+  template: src=3850.j2 dest=build/{{ inventory_hostname }}.txt
