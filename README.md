@@ -5,6 +5,6 @@ The basic concept is that a spreadsheet can be distributed to a customer, nicely
 
 There is brief experimentation in the spreadsheet using Data Validation and lists of entries to force what values are supported.
 
-Additional configuration items will be supported as the script evolves. As of yet it is a PoC, nothing is optiimised, nothing is really tested. The logic is dense and repetitive and needs to be improved upon.
+Additional configuration items will be supported as the script evolves. As of yet it is a PoC, nothing is optimised, nothing is really tested. The logic is dense and repetitive and needs to be improved upon.
 
 Launch playbook with `ansible-playbook site.yml -i inventory.py`.
