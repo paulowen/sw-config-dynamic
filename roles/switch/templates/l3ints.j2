@@ -1,0 +1,13 @@
+{% block l3ints %}
+{% for key, l3int in l3ints.iteritems()|sort %}
+interface {{ l3int.id }}
+{% if l3int.desc is defined %}
+ description {{ l3int.desc }}
+{% endif %}
+{% if l3int.address is defined %}
+ ip address {{ l3int.address }}
+{% endif %}
+ no shutdown
+!
+{% endfor %}
+{% endblock %}

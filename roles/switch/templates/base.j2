@@ -1,4 +1,9 @@
 !
+switch 1 priority 15
+switch 2 priority 10
+!
+conf t
+!
 service nagle
 no service pad
 service timestamps debug datetime msec localtime
@@ -22,18 +27,20 @@ no ip http secure-server
 no ip domain-lookup
 ip domain-name {{ domainname }}
 !
+ip default-gateway {{ gateway }}
+!
+ip name-server 203.18.116.86
+ip name-server 203.18.118.86
+!
+spanning-tree mode rapid-pvst
+spanning-tree portfast default
+spanning-tree portfast bpduguard default
+!
 vtp mode transparent
-no spanning-tree vlan 1-4094
 !
 interface Vlan1
- description --- UNUSED
+ description UNUSED
  shutdown
-!
-ip dhcp ping packets 3
-ip dhcp ping timeout 100
-!
-ip dhcp snooping
-ip dhcp snooping vlan 1-999
 !
 aaa new-model
 aaa authentication login default local
@@ -45,27 +52,56 @@ user {{ username }} privi 15 secret {{ password }}
 cry key gen rsa gen mod 1024
 ip scp server enable
 !
-{% for vlan in vlans|sort() %}
-vlan {{ vlan }}
- name {{ vlans[vlan] }}
+{% for key, vlan in vlans.iteritems()|sort %}
+vlan {{ vlan.id }}
+ name {{ vlan.name }}
 {% endfor %}
 !
-{% block interfaces %}
-{% endblock %}
+{% include "switchports.j2" %}
+{% include "l3ints.j2" %}
 clock timezone AEST 10
 clock summer-time ADST recurring 1 Sun Oct 2:00 1 Sun Apr 3:00
 !
 banner login $
-UNAUTHORIZED ACCESS TO THIS NETWORK DEVICE IS PROHIBITED
-You must have explicit permission to access or configure this device.
-All activities performed on this device may be logged, and violations
-of this policy may result in disciplinary action, and may be reported to
-law enforcement. There is no right to privacy on this device.
+================================================================================
+=      Access to this computer system is limited to authorised users only.     =
+=      Unauthorised users may be subject to prosecution under the Crimes       =
+=                          Act or State legislation                            =
+=                                                                              =
+=         Please note, ALL CUSTOMER DETAILS are confidential and must          =
+=                           not be disclosed.                                  =
+================================================================================
 $
+!
+ntp server 203.18.127.160
+ntp server 203.18.127.161
+!
+snmp ifmib ifindex persist
+logging trap notifications
+logging origin-id hostname
+logging host 10.1.3.248
+snmp-server contact O2 Managed Services
+snmp-server location {{ snmploc }}
+snmp-server enable traps snmp authentication coldstart warmstart
+snmp-server enable traps transceiver all
+snmp-server enable traps entity
+snmp-server enable traps cpu threshold
+snmp-server enable traps flash insertion removal
+snmp-server enable traps envmon fan shutdown supply temperature status
+snmp-server enable traps cef resource-failure peer-state-change peer-fib-state-change inconsistency
+snmp-server enable traps config-copy
+snmp-server enable traps config
+snmp-server enable traps syslog
+snmp-server community AXPU8ZL6 ro
+snmp-server host 10.1.3.248 AXPU8ZL6
 !
 logging buffered 1024000
 !
+ip access-list logging interval 5000
+ip access-list log-update threshold 1
+!
 line con 0
+ exec-timeout 30 0
  logging synchronous
 !
 line vty 0 15
@@ -73,3 +109,4 @@ line vty 0 15
  logging synchronous
  transport input ssh
 !
+end

@@ -1,0 +1,36 @@
+{% block switchports %}
+{% for key, switchport in switchports.iteritems()|sort %}
+interface {{ switchport.id }}
+{% if switchport.desc is defined %}
+ description {{ switchport.desc }}
+{% endif %}
+{% if 'trunk' in switchport.mode %}
+ switchport
+ switchport mode trunk
+ switchport nonegotiate
+{% if switchport.allowedvlans is defined %}
+ switchport trunk allowed vlan {{ switchport.allowedvlans }}
+{% endif %}
+{% if switchport.nativevlan is defined %}
+ switchport trunk native vlan {{ switchport.nativevlan }}
+{% endif %}
+{% elif 'routed' in switchport.mode %}
+ no switchport
+{% else %}
+ switchport
+ switchport mode access
+ switchport nonegotiate
+{% if switchport.vlan is defined %}
+ switchport access vlan {{ switchport.vlan }}
+{% endif %}
+{# spanning-tree portfast #}
+{# spanning-tree bpduguard enable #}
+{% endif %}
+{% if switchport.shutdown is defined %}
+ shutdown
+{% else %}
+ no shutdown
+{% endif %}
+!
+{% endfor %}
+{% endblock %}
